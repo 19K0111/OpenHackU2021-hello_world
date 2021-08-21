@@ -27,6 +27,7 @@
   <!--  -->
   <script src="/__/firebase/6.2.0/firebase-app.js"></script>
   <script src="/__/firebase/6.2.0/firebase-firestore.js"></script>
+  <script src="/__/firebase/6.2.0/firebase-auth.js"></script>
   <script src="/__/firebase/init.js"></script>
 
   <!-- jQuery, Bootstrap の JSライブラリ をロードする。参考 https://getbootstrap.jp/docs/4.5/getting-started/introduction/ -->
@@ -90,6 +91,8 @@
                 <span class="lecturename">('+ doc.data()['subject'] + ')</span> \
                   [<a value="' + doc.id + '" data-toggle="modal" data-target="#addTask" onclick="showEditModal(this)"> <span class="fontBlue">編集</span> </a>] \
                   [<a value="' + doc.id + '" data-toggle="modal" data-target="#addTask" onclick="showDeleteModal(this)"> <span class="fontRed">削除</span> </a>] \
+                  - Added by ' + doc.data()['create_by_name'] + '\
+                  \
               </div> \
             </div> \
           </form> \
@@ -109,13 +112,15 @@
       let datepicker = new Date($("#datepicker").val()); // inputbox に入力された値を取得する
 
       db.collection("tasks").add({ // データベースにタスクを追加する
+        create_by_uid: user.uid,
+        create_by_name: user.displayName,
         create_at: new Date(), // 現在時刻
         title: tasktitle, // タイトル
         done: false, // タスクの完了状態は最初は未の状態のため false を指定
         subject: tasksubject, // 科目
         duedate: datepicker, // 締切日
         duedateYY: datepicker.getFullYear(), // 締切日(年)
-        duedateMM: datepicker.getMonth() + 1, // 締切日(月), getMonth(): 0 -> Januaryらしい 
+        duedateMM: datepicker.getMonth() + 1, // 締切日(月), getMonth(): 0 -> Januaryらしい
         duedateDD: datepicker.getDate(), // 締切日(日)
         duedateHH: ('00' + (datepicker.getHours())).slice(-2), // 締切日(時)
         duedateMIN: ('00' + (datepicker.getMinutes())).slice(-2) // 締切日(分)
@@ -159,7 +164,7 @@
           subject: tasksubject, // 入力されたタスク名
           duedate: datepicker, // 締切日
           duedateYY: datepicker.getFullYear(), // 締切日(年)
-          duedateMM: datepicker.getMonth() + 1, // 締切日(月), getMonth(): 0 -> Januaryらしい 
+          duedateMM: datepicker.getMonth() + 1, // 締切日(月), getMonth(): 0 -> Januaryらしい
           duedateDD: datepicker.getDate(), // 締切日(日)
           duedateHH: ('00' + (datepicker.getHours())).slice(-2), // 締切日(時)
           duedateMIN: ('00' + (datepicker.getMinutes())).slice(-2) // 締切日(分)
@@ -247,6 +252,83 @@
       $('#editTask').css("display", "none"); // タスク名を入力するための inputbox を非表示にする
       $('#warningMsg').css("display", "inline"); // 削除用の警告メッセージを表示する
     }
+
+    const provider = new firebase.auth.GoogleAuthProvider();
+
+    function signIn() {
+      firebase.auth().signInWithPopup(provider)
+        .then(result => {
+          console.log('ログインしました。');
+
+        }).catch(error => {
+          const signinError = `
+        サインインエラー
+        エラーメッセージ： ${error.message}
+        エラーコード: ${error.code}
+            `
+          console.log(signinError);
+        });
+    }
+
+    function signOut() {
+      firebase.auth().onAuthStateChanged(user => {
+        firebase
+          .auth()
+          .signOut()
+          .then(() => {
+            console.log('ログアウトしました');
+            location.reload();
+          })
+          .catch((error) => {
+            console.log(`ログアウト時にエラーが発生しました(${error})`);
+          });
+      });
+    }
+
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        const signOutMessage = `
+          <p> Hello, ${user.displayName}! <\/p>
+          <button class= "btn btn-primary" type = "submit"  onClick = "signOut()" > サインアウト <\/button>
+            `;
+        document.getElementById('auth').innerHTML = signOutMessage;
+        console.log('ログインしています');
+
+      } else {
+        const signInMessage = `
+          <button class= "btn btn-primary" type = "submit"  onClick = "signIn()" > サインイン <\/button>
+          `;
+        document.getElementById('auth').innerHTML = signInMessage;
+      }
+    });
+
+    // Firebase Authentication のPromiseオブジェクトを生成する関数を定義
+
+    function genUser() {
+      return new Promise((resolve, reject) => {
+        firebase.auth().onAuthStateChanged(user => {
+          if (user) {
+            resolve(user);
+          } else {
+            return null;
+          }
+        });
+      });
+    }
+
+    // Firebase の認証情報をResolveして処理ロジックに渡す
+    let user = null;
+
+    Promise.resolve(genUser()).then(user_ => {
+
+      // user 内にGoogle認証を利用したユーザー情報が格納されている
+      user = user_;
+      console.log(user_.uid);
+      console.log(user_.email);
+      console.log(user_.displayName);
+
+    });
+
   </script>
 
   <!-- DatePicker -->
@@ -292,6 +374,7 @@
       <img src="img/default.jpg" width="32px" height="32px">
       <!-- <span class="login"><a href="login.html">ログイン</a></span> -->
     </div>
+    <div id="auth"></div>
     <div class="toggle_btn">
       <span></span>
       <span></span>
@@ -615,7 +698,7 @@
         <span class="duedate">2021年8月20日 23:59</span>
         <span class="taskname">課題B</span>
         <span class="lecturename">複素関数論2</span>
-      </div> 
+      </div>
       -->
 
       <div id="list">
