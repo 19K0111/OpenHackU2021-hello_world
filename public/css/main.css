@@ -1,0 +1,51 @@
+body{
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* main */
+.main{
+    display: flex;
+    margin-top: 70px;
+    border-top: solid 1px #000000;
+    padding-top: 10px;
+}
+
+.main .timetable{
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.timetable{
+    width: 50%;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-bottom: 10px;
+}
+
+.tasks{
+    width: 50%;
+}
+
+.addbutton{
+    position: fixed;
+    right: 50px;
+    top: auto;
+    padding-top: 20px;
+}
+
+@media screen and (max-width:767px) {
+    /* スマートフォン向け */
+    .timetable{
+        width: 100%;
+    }
+
+    .tasks{
+        width: 100%;
+    }
+    .main{
+        display: block;
+        margin-top: 70px;
+        border-top: solid 1px #000000;
+        padding-top: 10px;
+    }
+}

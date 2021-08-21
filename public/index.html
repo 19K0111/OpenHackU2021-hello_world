@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script type="text/javascript" src="./js/jquery-3.6.0.min.js"></script>
+  <link rel="stylesheet" href="./css/menu.css"> <!-- https://125naroom.com/web/2958 -->
+  <script type="text/javascript" src="./js/menu.js"></script> <!-- https://125naroom.com/web/2958 -->
+  <link rel="stylesheet" href="./css/main.css">
+  <link rel="stylesheet" href="./css/table.css">
+  <link rel="stylesheet" href="./css/tasks.css">
+  <script type="text/javascript" src="./js/tasks.js"></script>
+
+
+  <!-- Bootstrap の css をインポートする。参考 https://getbootstrap.jp/docs/4.5/getting-started/introduction/　-->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+    integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+  <!-- モバイルブラウザでのレイアウトを制御する。参考 https://qiita.com/ryounagaoka/items/045b2808a5ed43f96607 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+
+  <!-- 検索エンジンに引っかからないようにする。参考 https://ameblo.jp/masa30201/entry-11564231810.html -->
+  <meta name="Keywords" content="norobot">
+
+  <!--  -->
+  <script src="/__/firebase/6.2.0/firebase-app.js"></script>
+  <script src="/__/firebase/6.2.0/firebase-firestore.js"></script>
+  <script src="/__/firebase/init.js"></script>
+
+  <!-- jQuery, Bootstrap の JSライブラリ をロードする。参考 https://getbootstrap.jp/docs/4.5/getting-started/introduction/ -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous">
+    </script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+    integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous">
+    </script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+    integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous">
+    </script>
+
+  <!-- android のブラウザを全画面表示にさせる -->
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <!-- iOS のブラウザを全画面表示にさせる -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <!-- CSS の定義 -->
+  <style>
+    /*  文字の色を指定 */
+    .fontBlue {
+      color: blue;
+    }
+
+    .fontRed {
+      color: red;
+    }
+  </style>
+  <script>
+    let db = firebase.firestore(); // データベースに関する機能の取得
+
+    // 保持されている全てのタスクデータを取得し、表示する
+    function getAll() {
+      let collection = db.collection("tasks").orderBy('duedate', 'asc'); // 作成された順にデータを並べてタスクデータをデータベースから取得する
+      collection.get().then((querySnapshot) => { // 取得したデータを読み取る
+        $('#list').text('') // タスクをリスト表示するための箇所（<div id="list"></div>）を空文字に設定（初期化）
+
+        // 変数の初期化
+        outputAll = [];
+        num = 0;
+
+        querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
+          let status = "";
+          if (doc.data()['done']) {
+            status = "checked"
+          } // タスクが完了の状態になっているかの判定
+          // リスト表示するための箇所（ <div id="list"></div> ）にタスクを最下端に追加
+          $('#list').append(' \
+      <div class="row mx-auto">\
+        <div class="col-sm"> \
+          <form class="form-inline"> \
+            <div class="custom-control custom-checkbox"> \
+              <input value="' + doc.id + '" type="checkbox" class="custom-control-input" id="customCheck' + num +
+            '" ' + status + ' onclick="check(this);"> \
+              <label class="custom-control-label" for="customCheck' + num + '"> \
+              <div class="detail"> \
+                <span class="duedate">'+ doc.data()['duedateYY'] + '年' + doc.data()['duedateMM'] + '月' + doc.data()['duedateDD'] + '日 ' + doc.data()['duedateHH'] + ':' + doc.data()['duedateMIN'] + '</span> \
+                <span class="taskname">'+ doc.data()['title'] + '</span> \
+                <span class="lecturename">('+ doc.data()['subject'] + ')</span> \
+                  [<a value="' + doc.id + '" data-toggle="modal" data-target="#addTask" onclick="showEditModal(this)"> <span class="fontBlue">編集</span> </a>] \
+                  [<a value="' + doc.id + '" data-toggle="modal" data-target="#addTask" onclick="showDeleteModal(this)"> <span class="fontRed">削除</span> </a>] \
+              </div> \
+            </div> \
+          </form> \
+        </div> \
+      </div>');
+          num++;
+        });
+      });
+    }
+    getAll(); // 保持されている全てのタスクデータ取得の初期実行（これがないと、画面を開いたときに何も表示されない）
+
+    // タスクを追加する
+    function add() {
+      let tasktitle = $("#tasktitle").val(); // inputbox に入力された値を取得する
+      if (tasktitle == "") return; // もし、inputbox が空だった場合は関数を終了する
+      let tasksubject = $("#tasksubject").val(); // inputbox に入力された値を取得する
+      let datepicker = new Date($("#datepicker").val()); // inputbox に入力された値を取得する
+
+      db.collection("tasks").add({ // データベースにタスクを追加する
+        create_at: new Date(), // 現在時刻
+        title: tasktitle, // タイトル
+        done: false, // タスクの完了状態は最初は未の状態のため false を指定
+        subject: tasksubject, // 科目
+        duedate: datepicker, // 締切日
+        duedateYY: datepicker.getFullYear(), // 締切日(年)
+        duedateMM: datepicker.getMonth() + 1, // 締切日(月), getMonth(): 0 -> Januaryらしい 
+        duedateDD: datepicker.getDate(), // 締切日(日)
+        duedateHH: ('00' + (datepicker.getHours())).slice(-2), // 締切日(時)
+        duedateMIN: ('00' + (datepicker.getMinutes())).slice(-2) // 締切日(分)
+      }).then(function (docRef) { // 成功した場合に実行される箇所
+        getAll(); // 保持されている全てのタスクデータを取得し、表示する
+        // $("#tasktitle").val(''); // inputbox に入力された値を空にする
+        // $("#tasksubject").val(''); // inputbox に入力された値を空にする
+        // $("#datepicker").val(''); // inputbox に入力された値を空にする
+        console.log("Document written with ID: ", docRef.id);
+        window.location.reload();
+      })
+        .catch(function (error) { // 失敗した場合に実行される箇所
+          console.error("Error adding document: ", error);
+        });
+    }
+
+    // タスクを削除する
+    function del() {
+      db.collection("tasks").doc($('#docId').val()).delete() // $('#docId').val() で削除する対象データのIDを取得し、そのデータに対して削除を行う
+        .then(function () { // 成功した場合に実行される箇所
+          console.log("Document successfully deleted!");
+          $('#list').text = "" // タスクをリスト表示するための箇所（<div id="list"></div>）を空文字に設定（初期化）
+          // $("#addTask").modal('toggle'); // Modal の表示を OFF にする
+          getAll(); // 保持されている全てのタスクデータを取得し、表示する
+          window.location.reload();
+        }).catch(function (error) { // 失敗した場合に実行される箇所
+          console.error("Error removing document: ", error);
+        });
+    }
+
+    // タスクを更新する
+    function update() {
+      let tasktitle = $("#tasktitle").val(); // inputbox に入力された値を取得する
+      if (tasktitle == "") return; //　もし、inputbox が空だった場合は関数を終了する
+      let tasksubject = $("#tasksubject").val(); // inputbox に入力された値を取得する
+      let datepicker = new Date($("#datepicker").val()); // inputbox に入力された値を取得する
+
+      collection = db.collection("tasks").doc($('#docId').val())
+        .update({ // $('#docId').val() で削除する対象データのIDを取得し、そのデータに対して更新を行う
+          title: tasktitle, // 入力されたタスク名
+          subject: tasksubject, // 入力されたタスク名
+          duedate: datepicker, // 締切日
+          duedateYY: datepicker.getFullYear(), // 締切日(年)
+          duedateMM: datepicker.getMonth() + 1, // 締切日(月), getMonth(): 0 -> Januaryらしい 
+          duedateDD: datepicker.getDate(), // 締切日(日)
+          duedateHH: ('00' + (datepicker.getHours())).slice(-2), // 締切日(時)
+          duedateMIN: ('00' + (datepicker.getMinutes())).slice(-2) // 締切日(分)
+        }).then(function () { // 成功した場合に実行される箇所
+          console.log("Document successfully updated!");
+          $('#list').text = "" // タスクをリスト表示するための箇所（<div id="list"></div>）を空文字に設定（初期化）
+          // $("#addTask").modal('toggle'); // Modal の表示を OFF にする
+          // getAll(); // 保持されている全てのタスクデータを取得し、表示する
+          // $("#tasktitle").val(''); // inputbox に入力された値を空にする
+          // $("#tasksubject").val(''); // inputbox に入力された値を空にする
+          // $("#datepicker").val(''); // inputbox に入力された値を空にする
+          window.location.reload();
+        }).catch(function (error) { // 失敗した場合に実行される箇所
+          console.error("Error removing document: ", error);
+        });
+    }
+
+    // タスクの完了、未完了を制御する
+    function check(elm) {
+      db.collection("tasks").doc(elm.getAttribute('value'))
+        .update({ // elm.getAttribute('value') で削除する対象データのIDを取得し、そのデータに対して更新を行う
+          done: elm.checked, // 対象要素のチェック状態
+        }).then(function () { // 成功した場合に実行される箇所
+          console.log("Document successfully updated!");
+        }).catch(function (error) { // 失敗した場合に実行される箇所
+          console.error("Error removing document: ", error);
+        });
+    }
+
+    // 新規タスクのためのモーダルを表示する
+    function showNewModal(elm) {
+      // $('#docId').val(elm.getAttribute('value')); // 選択したタスクデータのID を <input type="hidden" id="docId"> に設定
+      $('#modalTitleLabel').text("新規タスクを作成"); // Modalのタイトル
+      $('#OKBtn').css("display", "inline"); // 決定用のボタンを表示する
+      $('#replaceBtn').css("display", "none"); // 更新用のボタンを非表示にする
+      $('#deleteBtn').css("display", "none"); // 削除用のボタンを非表示にする
+      $('#cancelBtn').css("display", "inline"); // キャンセルボタンを表示する
+      $('#resetBtn').css("display", "inline"); // リセットボタンを表示する
+      $('#editTask').css("display", "inline"); // タスク名を入力するための inputbox を表示する
+      $('#warningMsg').css("display", "none"); // 削除用の警告メッセージを非表示にする
+
+
+      $('#tasktitle').val('');
+      $('#tasksubject').val('');
+      $('#datepicker').val('');
+    }
+
+    // タスク更新のためのモーダルを表示する
+    function showEditModal(elm) {
+      $('#docId').val(elm.getAttribute('value')); // 選択したタスクデータのID を <input type="hidden" id="docId"> に設定
+      $('#modalTitleLabel').text("タスクを修正"); // Modalのタイトル
+      $('#OKBtn').css("display", "none"); // 決定用のボタンを非表示にする
+      $('#replaceBtn').css("display", "inline"); // 更新用のボタンを表示する
+      $('#deleteBtn').css("display", "none"); // 削除用のボタンを非表示にする
+      $('#cancelBtn').css("display", "inline"); // キャンセルボタンを表示する
+      $('#resetBtn').css("display", "none"); // リセットボタンを非表示にする
+      $('#editTask').css("display", "inline"); // タスク名を入力するための inputbox を表示する
+      $('#warningMsg').css("display", "none"); // 削除用の警告メッセージを非表示にする
+
+      // データベースから値を読み込む
+      let collection = db.collection("tasks").doc($('#docId').val());
+      let title = "";
+      let subject = "";
+      let date = "";
+      collection.get().then((doc) => {
+        title = doc.data()['title'];
+        subject = doc.data()['subject'];
+        date = doc.data()['duedateYY'] + '-' + ('00' + doc.data()['duedateMM']).slice(-2) + '-' + ('00' + doc.data()['duedateDD']).slice(-2) + ' ' + doc.data()['duedateHH'] + ':' + doc.data()['duedateMIN'];
+
+        $('#tasktitle').val(title);
+        $('#tasksubject').val(subject);
+        $('#datepicker').val(date);
+      });
+    }
+
+    // タスク削除のためのモーダルを表示する
+    function showDeleteModal(elm) {
+      $('#docId').val(elm.getAttribute('value')); // 選択したタスクデータのID を <input type="hidden" id="docId"> に設定
+      $('#modalTitleLabel').text("タスクを削除"); // Modalのタイトル
+      $('#OKBtn').css("display", "none"); // 決定用のボタンを非表示にする
+      $('#replaceBtn').css("display", "none"); // 更新用のボタンを非表示にする
+      $('#deleteBtn').css("display", "inline"); // 削除用のボタンを表示する
+      $('#cancelBtn').css("display", "inline"); // キャンセルボタンを表示する
+      $('#resetBtn').css("display", "none"); // リセットボタンを非表示にする
+      $('#editTask').css("display", "none"); // タスク名を入力するための inputbox を非表示にする
+      $('#warningMsg').css("display", "inline"); // 削除用の警告メッセージを表示する
+    }
+  </script>
+
+  <!-- DatePicker -->
+  <!-- https://deep-blog.jp/engineer/12727/ -->
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-material-datetimepicker/2.7.1/css/bootstrap-material-datetimepicker.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/locale/ja.js"></script>
+  <!-- moment.jsを使って日本語対応 -->
+  <script type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-material-datetimepicker/2.7.1/js/bootstrap-material-datetimepicker.min.js"></script>
+  <script>
+    // 締切日にフォーカスを当てたときにカレンダーを表示
+    $(function () {
+      $("#datepicker").bootstrapMaterialDatePicker({
+        weekStart: 0,
+        lang: "ja",
+        format: "YYYY-MM-DD HH:mm"
+      });
+    });
+  </script>
+
+
+  <title>Timetable</title>
+</head>
+
+<body>
+  <div id="navarea">
+    <nav>
+      <div class="inner">
+        <ul>
+          <li><a href="#">menu1</a></li>
+          <li><a href="#">menu2</a></li>
+          <li><a href="#">menu3</a></li>
+          <li><a href="#">menu4</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="profile">
+      <img src="img/default.jpg" width="32px" height="32px">
+      <!-- <span class="login"><a href="login.html">ログイン</a></span> -->
+    </div>
+    <div class="toggle_btn">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <div id="mask"></div>
+
+  </div>
+
+  <div class="main">
+    <div class="timetable">
+      <table class="timetable" cellspacing="0" border="1">
+        <tbody>
+          <tr>
+            <th class="period"></th>
+            <th class="week">
+              日
+            </th>
+            <th class="week">
+              月
+            </th>
+            <th class="week">
+              火
+            </th>
+            <th class="week">
+              水
+            </th>
+            <th class="week">
+              木
+            </th>
+            <th class="week">
+              金
+            </th>
+            <th class="week">
+              土
+            </th>
+          </tr>
+          <tr>
+            <td class="period">1</td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li>
+                  <a href="./lectures/1.html" target="_blank" title="複素関数論2">複素関数論2</a>
+                </li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td class="period">2</td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td class="period">3</td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li>
+                  <a href="lectures/2.html">Reading and Writing</a>
+                </li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td class="period">4</td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td class="period">5</td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td class="period">6</td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td class="period">7</td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+            <td>
+              <ul>
+
+              </ul>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tasks">
+      <h2 class="header">TODO</h2>
+      <!-- 例
+         <div class="detail">
+        <span class="duedate">2021年8月19日 13:00</span>
+        <span class="taskname">課題A</span>
+        <span class="lecturename">複素関数論2</span>
+      </div>
+      <div class="detail">
+        <span class="duedate">2021年8月20日 23:59</span>
+        <span class="taskname">課題B</span>
+        <span class="lecturename">複素関数論2</span>
+      </div> 
+      -->
+
+      <div id="list">
+
+      </div>
+
+      <div class="addbutton" style="position: absolute;">
+        <button type="button" class="btn btn-primary" id="addBtn" data-toggle="modal" data-target="#addTask"
+          onclick="showNewModal(this)">新規作成</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="addTask" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitleLabel">新規タスクを作成</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="docId"> <!-- 選択したタスクIDを管理する -->
+          <form>
+            <div class="container">
+              <div class="row row-cols-1" id="editTask">
+                <div class="col">タイトル</div>
+                <div class="col">
+                  <!-- タイトル -->
+                  <input type="text" class="form-control" id="tasktitle" />
+                </div>
+                <div class="col">科目</div>
+                <div class="col">
+                  <!-- 科目 -->
+                  <select class="form-control" id="tasksubject">
+                    <option>複素関数論2</option>
+                    <option>Reading and Writing</option>
+                  </select>
+                </div>
+                <div class="col">締切日</div>
+                <div class="col">
+                  <!-- 締切日 -->
+                  <div class="btn-group">
+                    <input type="text" class="form-control" id="datepicker" />
+                    <span class="dateclear glyphicon glyphicon-remove-circle"></span>
+                  </div>
+                </div>
+              </div>
+              <p id="warningMsg">本当に削除してもよろしいですか？</p>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancelBtn" data-dismiss="modal">キャンセル</button>
+          <button type="button" class="btn btn-warning" id="resetBtn" onclick="reset()">リセット</button>
+          <button type="button" class="btn btn-danger" id="deleteBtn" onclick="del()">削除</button>
+          <button type="button" class="btn btn-primary" id="OKBtn" onclick="add()">決定</button>
+          <button type="button" class="btn btn-success" id="replaceBtn" onclick="update()">更新</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+
+</html>
