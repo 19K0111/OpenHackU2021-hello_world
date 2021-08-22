@@ -292,12 +292,15 @@
             `;
         document.getElementById('auth').innerHTML = signOutMessage;
         console.log('ログインしています');
-
+        let elem = document.getElementById("profileImg");
+        elem.src = user.photoURL;
       } else {
         const signInMessage = `
           <button class= "btn btn-primary" type = "submit"  onClick = "signIn()" > サインイン <\/button>
           `;
         document.getElementById('auth').innerHTML = signInMessage;
+        let elem = document.getElementById("profileImg");
+        elem.src = "img/default.jpg";
       }
     });
 
@@ -371,7 +374,7 @@
     </nav>
 
     <div class="profile">
-      <img src="img/default.jpg" width="32px" height="32px">
+      <img id="profileImg" src="img/default.jpg" width="32px" height="32px">
       <!-- <span class="login"><a href="login.html">ログイン</a></span> -->
     </div>
     <div id="auth"></div>
