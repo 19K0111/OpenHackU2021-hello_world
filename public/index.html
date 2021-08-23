@@ -254,6 +254,21 @@
       $('#warningMsg').css("display", "inline"); // 削除用の警告メッセージを表示する
     }
 
+    // 教科追加のためのモーダルを表示する
+    function showAddSubjectModal(elm) {
+      console.log(elm);
+      $('#modalTitleLabel').text("科目を選択"); // Modalのタイトル
+      $('#OKBtn').css("display", "inline"); // 決定用のボタンを表示する
+      $('#replaceBtn').css("display", "none"); // 更新用のボタンを非表示にする
+      $('#deleteBtn').css("display", "none"); // 削除用のボタンを非表示にする
+      $('#cancelBtn').css("display", "inline"); // キャンセルボタンを表示する
+      $('#resetBtn').css("display", "inline"); // リセットボタンを表示する
+      $('#editTask').css("display", "inline"); // タスク名を入力するための inputbox を表示する
+      $('#warningMsg').css("display", "none"); // 削除用の警告メッセージを非表示にする
+
+      $('#subject').val('');
+    }
+
     const provider = new firebase.auth.GoogleAuthProvider();
 
     function signIn() {
@@ -417,7 +432,6 @@
         console.log("td=" + td + "\t行row=" + row + "\t列column=" + column + "\t" + text);
         //クリックしたセルの色を青にする。
         if (text == "") {
-          window.open("./lectures/select_sub.html");
           td.style.background = "#66f";
         }
       }
@@ -482,29 +496,29 @@
             <!-- 2行目 -->
             <th scope="row" class="period">1</th>
             <td><a href="./lectures/1.html" target="_blank" title="複素関数論2">複素関数論2</a></td> <!-- 月曜１限 -->
-            <td></td>
-            <td></td>
-            <td>hoge0</td>
-            <td>hoge0</td>
-            <td>hoge0</td>
+            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
+            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
+            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
+            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
+            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
           </tr>
           <tr>
             <th scope="row" class="period">2</th>
-            <td>hoge</td>
-            <td>hoge0</td>
-            <td>hoge0</td>
-            <td>hoge0</td>
-            <td>hoge0</td>
-            <td>hoge0</td>
+            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
+            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
+            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
+            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
+            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
+            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
           </tr>
           <tr>
             <th scope="row" class="period">3</th>
-            <td>hoge</td>
-            <td>hoge0</td>
-            <td>hoge0</td>
-            <td>hoge0</td>
-            <td>hoge0</td>
-            <td>hoge0</td>
+            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
+            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
+            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
+            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
+            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
+            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
           </tr>
           <tr>
             <th scope="row" class="period">4</th>
@@ -572,7 +586,7 @@
     </div>
   </div>
 
-  <!-- Modal -->
+  <!-- Modal(task) -->
   <div class="modal fade" id="addTask" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -597,8 +611,9 @@
                 <div class="col">
                   <!-- 科目 -->
                   <select class="form-control" id="tasksubject">
-                    <option>複素関数論2</option>
-                    <option>Reading and Writing</option>
+                    </script>
+                      <option>複素関数論2</option>
+                      <option>Reading and Writing</option>
                   </select>
                 </div>
                 <div class="col">締切日</div>
@@ -608,6 +623,75 @@
                     <input type="text" class="form-control" id="datepicker" />
                     <span class="dateclear glyphicon glyphicon-remove-circle"></span>
                   </div>
+                </div>
+              </div>
+              <p id="warningMsg">本当に削除してもよろしいですか？</p>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancelBtn" data-dismiss="modal">キャンセル</button>
+          <button type="button" class="btn btn-warning" id="resetBtn" onclick="reset()">リセット</button>
+          <button type="button" class="btn btn-danger" id="deleteBtn" onclick="del()">削除</button>
+          <button type="button" class="btn btn-primary" id="OKBtn" onclick="add()">決定</button>
+          <button type="button" class="btn btn-success" id="replaceBtn" onclick="update()">更新</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    let sub = firebase.firestore();
+
+    // 保有されている科目の取得
+    function addAllSubjects() {
+        let collection = sub.collection("subjects"); // 作成された順にデータを並べてタスクデータをデータベースから取得する
+        collection.get().then((querySnapshot) => { // 取得したデータを読み取る
+            $('sub').text('');
+            
+            // 変数の初期化
+            outputAll = [];
+            num = 0;
+
+            querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
+                let status = "";
+                $('#selectsubject').append($('<option>').html(doc.data()['name']).val(doc.data()['name']));
+                console.log(doc.data()['name']);
+                num++;
+            });
+        });
+    }
+    addAllSubjects();
+  </script>
+
+  <!-- Modal(subject) -->
+  <div class="modal fade" id="addSubject" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitleLabel"> 科目を登録</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="docId"> <!-- 選択したタスクIDを管理する -->
+          <form>
+            <div class="container">
+              <div class="row row-cols-1" id="editTask">
+                <div class="col">科目名</div>
+                <div class="col">
+                  <!-- 科目 -->
+                  <select class="form-control" id="selectsubject">
+                    
+                    <!--
+                      <option>複素関数論2</option>
+                      <option>Reading and Writing</option>
+                    -->
+                  </select>
+                </div>
+                <div class="col">
                 </div>
               </div>
               <p id="warningMsg">本当に削除してもよろしいですか？</p>
