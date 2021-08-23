@@ -8,5 +8,5 @@
 
 ```js
 // ブラウザでコンソールを開く
-addSubject();
+addSubjectToDb();
 ```

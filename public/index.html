@@ -130,6 +130,7 @@
         // $("#tasksubject").val(''); // inputbox に入力された値を空にする
         // $("#datepicker").val(''); // inputbox に入力された値を空にする
         console.log("Document written with ID: ", docRef.id);
+
         window.location.reload();
       })
         .catch(function (error) { // 失敗した場合に実行される箇所
@@ -327,10 +328,39 @@
 
       // user 内にGoogle認証を利用したユーザー情報が格納されている
       user = user_;
-      console.log(user_.uid);
-      console.log(user_.email);
-      console.log(user_.displayName);
+      console.log("user.uid: " + user_.uid);
 
+    });
+
+    // push通知許可設定
+    Notification.requestPermission().then((permission) => {
+      if (permission === 'granted') {
+        // 通知を許可した場合
+        console.log('Notification permission granted.');
+      } else {
+        // 通知を拒否した場合
+        console.log('Unable to get permission to notify.');
+      }
+    });
+    const messaging = firebase.messaging();
+    Notification.requestPermission().then((permission) => {
+      if (permission === 'granted') {
+        // 通知を許可した場合
+        console.log('Notification permission granted.');
+
+        messaging.getToken().then((currentToken) => {
+          if (currentToken) {
+            // トークン取得成功
+            console.log("currentToken:");
+            console.log(currentToken);
+          } else {
+            // トークン取得失敗
+          }
+        });
+      } else {
+        // 通知を拒否した場合
+        console.log('Unable to get permission to notify.');
+      }
     });
 
   </script>
