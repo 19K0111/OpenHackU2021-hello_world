@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="./css/main.css">
   <link rel="stylesheet" href="./css/table.css">
   <link rel="stylesheet" href="./css/tasks.css">
+  <link rel="stylesheet" href="./css/button.css">
   <script type="text/javascript" src="./js/tasks.js"></script>
 
   <!-- Bootstrap の css をインポートする。参考 https://getbootstrap.jp/docs/4.5/getting-started/introduction/　-->
@@ -288,7 +289,7 @@
       if (user) {
         const signOutMessage = `
           <p> Hello, ${user.displayName}! <\/p>
-          <button class= "btn btn-primary" type = "submit"  onClick = "signOut()" > サインアウト <\/button>
+          <button class= "btn btn-primary"  id="sign" type = "submit"  onClick = "signOut()" > サインアウト <\/button>
             `;
         document.getElementById('auth').innerHTML = signOutMessage;
         console.log('ログインしています');
@@ -296,6 +297,7 @@
         elem.src = user.photoURL;
       } else {
         const signInMessage = `
+          <p></p>
           <button class= "btn btn-primary" type = "submit"  onClick = "signIn()" > サインイン <\/button>
           `;
         document.getElementById('auth').innerHTML = signInMessage;
@@ -356,6 +358,48 @@
     });
   </script>
 
+  <script>
+    //table の初期化処理
+    console.log("hello");
+    function initTable() {
+      //table 内の td 要素をすべて取り出す。
+      const list1 = [1, 2, 3, 4, 5];
+      const list = document.querySelectorAll("td");
+      console.log(list1[0]);
+
+      // (参考) list は NodeList。配列 Array に似ているけど Array ではないので注意。
+
+      //td にクリックイベントを付ける。
+      //NodeList を Array にして for of で処理する例。
+      //array の場合は for of で処理できる。list のままだと for of は使えない。
+      for (const td of Array.from(list)) {
+        td.onclick = () => onclickTd(td);
+      }
+    }
+
+    //tdがクリックされたときの処理
+    function onclickTd(td) {
+      try {
+        const column = td.cellIndex;
+        const tr = td.parentNode;
+        const row = tr.sectionRowIndex;
+        const text = td.textContent;
+        console.log("td=" + td + "\t行row=" + row + "\t列column=" + column + "\t" + text);
+        //クリックしたセルの色を青にする。
+        if (text == "") {
+          window.open("./lectures/select_sub.html");
+          td.style.background = "#66f";
+        }
+      }
+      catch (e) {
+        console.log("Error:" + e);
+      }
+    }
+
+    window.onload = function () {
+      initTable();
+    };
+  </script>
 
   <title>Timetable</title>
 </head>
@@ -390,305 +434,88 @@
 
   <div class="main">
     <div class="timetable">
-      <table class="timetable" cellspacing="0" border="1">
+      <table class="timetable" id="TABLE1" cellspacing="0" border="1">
+        <thead>
+          <tr>
+            <!-- 1行目 -->
+            <th scope="col" class="edge">#</th>
+            <th scope="col" class="week">Mon.</th>
+            <th scope="col" class="week">Tue.</th>
+            <th scope="col" class="week">Wed.</th>
+            <th scope="col" class="week">Thu.</th>
+            <th scope="col" class="week">Fr.</th>
+            <th scope="col" class="week">Sat.</th>
+          </tr>
+        </thead>
         <tbody>
           <tr>
-            <th class="period"></th>
-            <th class="week">
-              日
-            </th>
-            <th class="week">
-              月
-            </th>
-            <th class="week">
-              火
-            </th>
-            <th class="week">
-              水
-            </th>
-            <th class="week">
-              木
-            </th>
-            <th class="week">
-              金
-            </th>
-            <th class="week">
-              土
-            </th>
+            <!-- 2行目 -->
+            <th scope="row" class="period">1</th>
+            <td><a href="./lectures/1.html" target="_blank" title="複素関数論2">複素関数論2</a></td> <!-- 月曜１限 -->
+            <td></td>
+            <td></td>
+            <td>hoge0</td>
+            <td>hoge0</td>
+            <td>hoge0</td>
           </tr>
           <tr>
-            <td class="period">1</td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-                <li>
-                  <a href="./lectures/1.html" target="_blank" title="複素関数論2">複素関数論2</a>
-                </li>
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
+            <th scope="row" class="period">2</th>
+            <td>hoge</td>
+            <td>hoge0</td>
+            <td>hoge0</td>
+            <td>hoge0</td>
+            <td>hoge0</td>
+            <td>hoge0</td>
           </tr>
           <tr>
-            <td class="period">2</td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
+            <th scope="row" class="period">3</th>
+            <td>hoge</td>
+            <td>hoge0</td>
+            <td>hoge0</td>
+            <td>hoge0</td>
+            <td>hoge0</td>
+            <td>hoge0</td>
           </tr>
           <tr>
-            <td class="period">3</td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-                <li>
-                  <a href="lectures/2.html">Reading and Writing</a>
-                </li>
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
+            <th scope="row" class="period">4</th>
+            <td>月曜4限</td>
+            <td>hoge0</td>
+            <td>hoge0</td>
+            <td>hoge0</td>
+            <td>hoge0</td>
+            <td>hoge0</td>
           </tr>
           <tr>
-            <td class="period">4</td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
+            <th scope="row" class="period">5</th>
+            <td>月曜5限</td>
+            <td>hoge0</td>
+            <td>hoge0</td>
+            <td>hoge0</td>
+            <td>hoge0</td>
+            <td></td>
           </tr>
           <tr>
-            <td class="period">5</td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
+            <th scope="row" class="period">6</th>
+            <td>月曜6限</td>
+            <td>hoge0</td>
+            <td>hoge0</td>
+            <td>hoge0</td>
+            <td></td>
+            <td></td>
           </tr>
           <tr>
-            <td class="period">6</td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-          </tr>
-          <tr>
-            <td class="period">7</td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
-            <td>
-              <ul>
-
-              </ul>
-            </td>
+            <th scope="row" class="period">7</th>
+            <td>月曜6限</td>
+            <td>hoge0</td>
+            <td>hoge0</td>
+            <td>hoge0</td>
+            <td></td>
+            <td></td>
           </tr>
         </tbody>
       </table>
     </div>
+
     <div class="tasks">
       <h2 class="header">TODO</h2>
       <!-- 例

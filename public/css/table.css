@@ -4,11 +4,16 @@ table.timetable{
     margin-top: .5em;
     border-collapse: collapse;
 }
+/*
+table.timetable td:empty{
+    background:yellow; 
+}*/
 
 table.timetable th{
-	background-color: #ddd;
+	/*background-color: #ddd;*/
     font-weight: bold;
-    border: 1px solid #999;
+    font-size: 1.3em;
+    border: 3px solid white; /* 要素の境界 */
     text-align: center;
     white-space: nowrap;
     padding: .3em;
@@ -18,24 +23,30 @@ table.timetable th.period{
     width: 5em;
 }
 
-table.timetable th.week{
-    width: 7em;
+table.timetable th.week{ /* 何曜日か */
+    border-bottom: solid 7px white;
+    background-color: #167F92;
+    color: #fff;
+    width: 9em;
 }
 
-table.timetable td{
-    border: 1px solid #999;
+table.timetable td{ /* 時間割内 */
+    border: 3px solid white;
+    background-color: #e6f2f5;
     text-align: center;
     padding: .3em;
     word-wrap: break-word;
+    transition: all 300ms 0s ease;
 }
 
-table.timetable td.period{
-    background-color: #88D0E8;
+table.timetable td:hover{
+    opacity: 0.5;
+    background-color: white;
+}
+
+table.timetable th.period{ /* 何時間目か */
+    border-right: solid 7px white;
+    background-color: #78bbc7;
     font-weight: bold;
 }
 
-table.timetable ul{
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}

@@ -1,0 +1,51 @@
+/* 新規作成ボタン */
+#addBtn {
+    color: #167F92;
+    font-size: 16px;
+    font-weight: bold;
+    background: transparent;
+    padding: 18px 30px;
+    border: 3px solid #167F92;
+    border-radius: 6px;
+    position: relative;
+    z-index: 1;
+    transition: .3s;
+}
+
+#addBtn::before {
+    content: "";
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    background: #167F92;
+    transform-origin: 50% 0%;
+    transform: scaleY(0);
+    transition: transform ease .3s;
+}
+
+#addBtn:hover {
+    color: #fff;
+}
+
+#addBtn:hover::before {
+    transform-origin: 50% 100%;
+    transform: scaleY(1);
+}
+
+#sign {
+    color: #167F92;
+    font-size: 16px;
+    font-weight: bold;
+    background: transparent;
+    padding: 18px 30px;
+    border: 3px solid #167F92;
+    border-radius: 6px;
+    position: relative;
+    z-index: 1;
+    transition: .3s;
+}
+
+
