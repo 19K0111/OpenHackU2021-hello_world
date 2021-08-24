@@ -196,6 +196,58 @@
           console.error("Error removing document: ", error);
         });
     }
+    let user_subjects = [];
+    function getAllSubjects() {
+      let collection = db.collection("users"); // 作成された順にデータを並べてタスクデータをデータベースから取得する
+      collection.get().then((querySnapshot) => { // 取得したデータを読み取る
+        // 変数の初期化
+        querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
+          if (doc.id == user.uid) {
+            user_subjects = doc.data()['subjects'];
+          }
+        });
+      }).catch((error) => {
+        console.log("Error getting documents: ", error);
+      });
+
+    }
+    getAllSubjects(); // 保持されているuserの時間割を取得
+
+    function addSubjectToUser() {
+      let selected = $('#selectsubject').val(); // selectsubject で選択された値を取得する
+      let subject = selected.split(" - ")[0];
+      let teacher = selected.split(" - ")[1];
+
+      let collection = db.collection("subjects"); // subjectsをデータベースから取得する
+      collection.get().then((querySnapshot) => { // 取得したデータを読み取る
+        querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
+          if (doc.data()['name'] == subject && doc.data()['teacher'] == teacher) {
+            user_subjects.push(doc.id);
+            console.log("pushed");
+            updateUserSubjects();
+          }
+        });
+      }).catch((error) => {
+        console.log("Error getting documents: ", error);
+      });
+    }
+    function updateUserSubjects() {
+      db.collection("users").doc(user.uid).update({
+        subjects: user_subjects
+      }).then(() => {
+        console.log("Document successfully updated!");
+        // getAllSubjects();
+        window.location.reload();
+
+      })
+        .catch((error) => {
+          console.error("Error writing document: ", error);
+        });
+    }
+
+    function delSubjectFromUser() {
+
+    }
 
     // 新規タスクのためのモーダルを表示する
     function showNewModal(elm) {
