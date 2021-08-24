@@ -256,20 +256,21 @@
       $('#warningMsg').css("display", "inline"); // 削除用の警告メッセージを表示する
     }
 
-    // 教科追加のためのモーダルを表示する
-    function showAddSubjectModal(elm) {
-      console.log(elm);
-      $('#modalTitleLabel').text("科目を選択"); // Modalのタイトル
-      $('#OKBtn').css("display", "inline"); // 決定用のボタンを表示する
-      $('#replaceBtn').css("display", "none"); // 更新用のボタンを非表示にする
-      $('#deleteBtn').css("display", "none"); // 削除用のボタンを非表示にする
-      $('#cancelBtn').css("display", "inline"); // キャンセルボタンを表示する
-      $('#resetBtn').css("display", "inline"); // リセットボタンを表示する
-      $('#editTask').css("display", "inline"); // タスク名を入力するための inputbox を表示する
-      $('#warningMsg').css("display", "none"); // 削除用の警告メッセージを非表示にする
+    // // 教科追加のためのモーダルを表示する
+    // function showNewSubjectModal(elm) {
+    //   console.log(elm);
+    //   console.log("hoge");
+    //   $('#modalTitleLabel').text("科目を選択"); // Modalのタイトル
+    //   $('#OKBtn').css("display", "inline"); // 決定用のボタンを表示する
+    //   $('#replaceBtn').css("display", "none"); // 更新用のボタンを非表示にする
+    //   $('#deleteBtn').css("display", "none"); // 削除用のボタンを非表示にする
+    //   $('#cancelBtn').css("display", "inline"); // キャンセルボタンを表示する
+    //   $('#resetBtn').css("display", "inline"); // リセットボタンを表示する
+    //   $('#editTask').css("display", "inline"); // タスク名を入力するための inputbox を表示する
+    //   $('#warningMsg').css("display", "none"); // 削除用の警告メッセージを非表示にする
 
-      $('#subject').val('');
-    }
+    //   $('#subject').val('');
+    // }
 
     const provider = new firebase.auth.GoogleAuthProvider();
 
@@ -489,7 +490,7 @@
             <th scope="col" class="week">Tue.</th>
             <th scope="col" class="week">Wed.</th>
             <th scope="col" class="week">Thu.</th>
-            <th scope="col" class="week">Fr.</th>
+            <th scope="col" class="week">Fri.</th>
             <th scope="col" class="week">Sat.</th>
           </tr>
         </thead>
@@ -498,11 +499,13 @@
             <!-- 2行目 -->
             <th scope="row" class="period">1</th>
             <td><a href="./lectures/1.html" target="_blank" title="複素関数論2">複素関数論2</a></td> <!-- 月曜１限 -->
-            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
-            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
-            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
-            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
-            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="tue1"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="wed1"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="thu1"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="fri1"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="sat1"></td>
+
+
           </tr>
           <tr>
             <th scope="row" class="period">2</th>
@@ -614,8 +617,8 @@
                   <!-- 科目 -->
                   <select class="form-control" id="tasksubject">
                     </script>
-                      <option>複素関数論2</option>
-                      <option>Reading and Writing</option>
+                    <option>複素関数論2</option>
+                    <option>Reading and Writing</option>
                   </select>
                 </div>
                 <div class="col">締切日</div>
@@ -647,25 +650,27 @@
 
     // 保有されている科目の取得
     function addAllSubjects() {
-        let collection = sub.collection("subjects"); // 作成された順にデータを並べてタスクデータをデータベースから取得する
-        collection.get().then((querySnapshot) => { // 取得したデータを読み取る
-            $('sub').text('');
-            
-            // 変数の初期化
-            outputAll = [];
-            num = 0;
+      let collection = sub.collection("subjects"); // 作成された順にデータを並べてタスクデータをデータベースから取得する
+      collection.get().then((querySnapshot) => { // 取得したデータを読み取る
+        $('sub').text('');
 
-            querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
-                let status = "";
-                $('#selectsubject').append($('<option>').html(doc.data()['name']).val(doc.data()['name']));
-                console.log(doc.data()['name']);
-                num++;
-            });
+        // 変数の初期化
+        outputAll = [];
+        num = 0;
+
+        querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
+          let status = "";
+          if (doc.data()['period'] == "") {
+
+          }
+          $('#selectsubject').append($('<option>').html(doc.data()['name'] + ' - ' + doc.data()['teacher']).val(doc.data()['name'] + ' - ' + doc.data()['teacher']));
+          // console.log(doc.data()['name']);
+          num++;
         });
+      });
     }
     addAllSubjects();
   </script>
-
   <!-- Modal(subject) -->
   <div class="modal fade" id="addSubject" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
@@ -686,7 +691,7 @@
                 <div class="col">
                   <!-- 科目 -->
                   <select class="form-control" id="selectsubject">
-                    
+
                     <!--
                       <option>複素関数論2</option>
                       <option>Reading and Writing</option>
@@ -696,21 +701,18 @@
                 <div class="col">
                 </div>
               </div>
-              <p id="warningMsg">本当に削除してもよろしいですか？</p>
+              <!-- <p id="warningMsg">本当に削除してもよろしいですか？</p> -->
             </div>
           </form>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" id="cancelBtn" data-dismiss="modal">キャンセル</button>
-          <button type="button" class="btn btn-warning" id="resetBtn" onclick="reset()">リセット</button>
-          <button type="button" class="btn btn-danger" id="deleteBtn" onclick="del()">削除</button>
-          <button type="button" class="btn btn-primary" id="OKBtn" onclick="add()">決定</button>
-          <button type="button" class="btn btn-success" id="replaceBtn" onclick="update()">更新</button>
+          <button type="button" class="btn btn-danger" id="deleteBtn" onclick="delSubjectFromUser()">削除</button>
+          <button type="button" class="btn btn-primary" id="OKBtn" onclick="addSubjectToUser()">決定</button>
         </div>
       </div>
     </div>
   </div>
-
 </body>
 
 </html>
