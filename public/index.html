@@ -208,18 +208,18 @@
     //     console.log("Error getting documents: ", error);
     //   });
     // }
-    function getSubjcetForTable(subj_id) {
-      let collection = db.collection("subjects"); // subjectsをデータベースから取得する
-      collection.get().then((querySnapshot) => { // 取得したデータを読み取る
-        querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
-          if (doc.id == subj_id) {
-            return doc.data()['name'] + '\n' + doc.data()['teacher'];
-          }
-        });
-      }).catch((error) => {
-        console.log("Error getting documents: ", error);
-      });
-    }
+    // function getSubjcetForTable(subj_id) {
+    //   let collection = db.collection("subjects"); // subjectsをデータベースから取得する
+    //   collection.get().then((querySnapshot) => { // 取得したデータを読み取る
+    //     querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
+    //       if (doc.id == subj_id) {
+    //         return doc.data()['name'] + '\n' + doc.data()['teacher'];
+    //       }
+    //     });
+    //   }).catch((error) => {
+    //     console.log("Error getting documents: ", error);
+    //   });
+    // }
     let user_subjects = [];
     function getAllSubjects() {
       let collection = db.collection("users"); // 作成された順にデータを並べてタスクデータをデータベースから取得する
@@ -228,46 +228,59 @@
         querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
           if (doc.id == user.uid) {
             user_subjects = doc.data()['subjects'];
-            let day = 1;
-            let period = 1;
-            let pd = "";
 
             for (let i = 0; i < user_subjects.length; i++) {
+              let day = 1;
+              let period = 1;
+              let pd = "";
               let first = true;
               let col = db.collection("subjects"); // subjectsをデータベースから取得する
               col.get().then((querySnapshot) => { // 取得したデータを読み取る
                 querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
                   if (doc.id == user_subjects[i] && first) {
-                    console.log(doc.data()['period']);
                     pd = doc.data()['period'];
-                    console.log(pd);
+                    console.log(pd + doc.data()['name']);
+
                     first = false;
                   }
                 });
+                switch (String(pd).charAt(0)) {
+                  case "月": day = 1;
+                    break;
+                  case "火": day = 2;
+                    break;
+                  case "水": day = 3;
+                    break;
+                  case "木": day = 4;
+                    break;
+                  case "金": day = 5;
+                    break;
+                  case "土": day = 6;
+                    break;
+                  default: day = 6;
+                    break;
+                }
+                period = parseInt(String(pd).charAt(1));
+                if (isNaN(period)) { period = 7; }
+
+                let coll = db.collection("subjects"); // subjectsをデータベースから取得する
+                first = true;
+                coll.get().then((querySnapshot) => { // 取得したデータを読み取る
+                  querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
+                    if (doc.id == user_subjects[i] && first) {
+                      // console.log("day:" + day);
+                      // console.log("period:" + period);
+                      // console.log(doc.data()['name'] + '\n' + doc.data()['teacher']);
+
+                      TABLE1.rows[period].cells[day].innerText = doc.data()['name'] + '\n' + doc.data()['teacher'];
+                      first = false;
+                    }
+                  });
+                }).catch((error) => {
+                  console.log("Error getting documents: ", error);
+                });
               })
 
-              console.log(pd);
-              switch (String(pd).charAt(0)) {
-                case "月": day = 1;
-                  break;
-                case "火": day = 2;
-                  break;
-                case "水": day = 3;
-                  break;
-                case "木": day = 4;
-                  break;
-                case "金": day = 5;
-                  break;
-                case "土": day = 6;
-                  break;
-                default: day = 6;
-                  break;
-              }
-              period = parseInt(String(pd).charAt(1));
-              // if (isNan(period)) { period = 7; }
-              console.log(period);
-              console.log(day);
-              TABLE1.rows[day].cells[period].innerText = String(getSubjcetForTable(user_subjects[i]));
             }
           }
         });
@@ -615,68 +628,67 @@
           <tr>
             <!-- 2行目 -->
             <th scope="row" class="period">1</th>
-            <td><a href="./lectures/1.html" target="_blank" title="複素関数論2">複素関数論2</a></td> <!-- 月曜１限 -->
+            <!-- <td><a href="./lectures/1.html" target="_blank" title="複素関数論2">複素関数論2</a></td> 月曜１限 -->
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="mon1"></td>
             <td data-toggle="modal" data-target="#addSubject" data-whatever="tue1"></td>
             <td data-toggle="modal" data-target="#addSubject" data-whatever="wed1"></td>
             <td data-toggle="modal" data-target="#addSubject" data-whatever="thu1"></td>
             <td data-toggle="modal" data-target="#addSubject" data-whatever="fri1"></td>
             <td data-toggle="modal" data-target="#addSubject" data-whatever="sat1"></td>
-
-
           </tr>
           <tr>
             <th scope="row" class="period">2</th>
-            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
-            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
-            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
-            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
-            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
-            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="mon2"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="tue2"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="wed2"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="thu2"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="fri2"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="sat2"></td>
           </tr>
           <tr>
             <th scope="row" class="period">3</th>
-            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
-            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
-            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
-            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
-            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
-            <td data-toggle="modal" data-target="#addSubject" onclick="showNewSubjectModal(this)"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="mon3"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="tue3"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="wed3"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="thu3"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="fri3"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="sat3"></td>
           </tr>
           <tr>
             <th scope="row" class="period">4</th>
-            <td>月曜4限</td>
-            <td>hoge0</td>
-            <td>hoge0</td>
-            <td>hoge0</td>
-            <td>hoge0</td>
-            <td>hoge0</td>
+            <td data-toggle="modal" data-target="#addSubject"></td>
+            <td data-toggle="modal" data-target="#addSubject"></td>
+            <td data-toggle="modal" data-target="#addSubject"></td>
+            <td data-toggle="modal" data-target="#addSubject"></td>
+            <td data-toggle="modal" data-target="#addSubject"></td>
+            <td data-toggle="modal" data-target="#addSubject"></td>
           </tr>
           <tr>
             <th scope="row" class="period">5</th>
-            <td>月曜5限</td>
-            <td>hoge0</td>
-            <td>hoge0</td>
-            <td>hoge0</td>
-            <td>hoge0</td>
-            <td></td>
+            <td data-toggle="modal" data-target="#addSubject"></td>
+            <td data-toggle="modal" data-target="#addSubject"></td>
+            <td data-toggle="modal" data-target="#addSubject"></td>
+            <td data-toggle="modal" data-target="#addSubject"></td>
+            <td data-toggle="modal" data-target="#addSubject"></td>
+            <td data-toggle="modal" data-target="#addSubject"></td>
           </tr>
           <tr>
             <th scope="row" class="period">6</th>
-            <td>月曜6限</td>
-            <td>hoge0</td>
-            <td>hoge0</td>
-            <td>hoge0</td>
-            <td></td>
-            <td></td>
+            <td data-toggle="modal" data-target="#addSubject"></td>
+            <td data-toggle="modal" data-target="#addSubject"></td>
+            <td data-toggle="modal" data-target="#addSubject"></td>
+            <td data-toggle="modal" data-target="#addSubject"></td>
+            <td data-toggle="modal" data-target="#addSubject"></td>
+            <td data-toggle="modal" data-target="#addSubject"></td>
           </tr>
           <tr>
             <th scope="row" class="period">7</th>
-            <td>月曜6限</td>
-            <td>hoge0</td>
-            <td>hoge0</td>
-            <td>hoge0</td>
-            <td></td>
-            <td></td>
+            <td data-toggle="modal" data-target="#addSubject"></td>
+            <td data-toggle="modal" data-target="#addSubject"></td>
+            <td data-toggle="modal" data-target="#addSubject"></td>
+            <td data-toggle="modal" data-target="#addSubject"></td>
+            <td data-toggle="modal" data-target="#addSubject"></td>
+            <td data-toggle="modal" data-target="#addSubject"></td>
           </tr>
         </tbody>
       </table>
