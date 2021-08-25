@@ -437,19 +437,19 @@
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
         const signOutMessage = `
-          <p> Hello, ${user.displayName}! <\/p>
-          <button class= "btn btn-primary"  id="sign" type = "submit"  onClick = "signOut()" > サインアウト <\/button>
+          <p style="float: left; padding-right: 15px;"> ${user.displayName} <\/p>
+          <img style="float: left;" id="profileImg" src="img/default.jpg" width="32px" height="32px" type = "submit"  onClick = "signOut()" >
             `;
-        document.getElementById('auth').innerHTML = signOutMessage;
+        document.getElementById('profile').innerHTML = signOutMessage;
+
         console.log('ログインしています');
         let elem = document.getElementById("profileImg");
         elem.src = user.photoURL;
       } else {
         const signInMessage = `
-          <p></p>
-          <button class= "btn btn-primary" type = "submit"  onClick = "signIn()" > サインイン <\/button>
+        <img id="profileImg" src="img/default.jpg" width="32px" height="32px" type = "submit"  onClick = "signIn()" >
           `;
-        document.getElementById('auth').innerHTML = signInMessage;
+        document.getElementById('profile').innerHTML = signInMessage;
         let elem = document.getElementById("profileImg");
         elem.src = "img/default.jpg";
       }
@@ -582,34 +582,34 @@
 </head>
 
 <body>
-  <div id="navarea">
-    <nav>
-      <div class="inner">
-        <ul>
-          <li><a href="#">menu1</a></li>
-          <li><a href="#">menu2</a></li>
-          <li><a href="#">menu3</a></li>
-          <li><a href="#">menu4</a></li>
-        </ul>
+  <header>
+    <img class="logopic" src="img/logo.png">
+    <div id="navarea">
+      <nav>
+        <div class="inner">
+          <ul>
+            <li><a href="#">menu1</a></li>
+            <li><a href="#">menu2</a></li>
+            <li><a href="#">menu3</a></li>
+            <li><a href="#">menu4</a></li>
+          </ul>
+        </div>
+      </nav>
+      <div class="profile" id="profile">
+        <!--<img id="profileImg" src="img/default.jpg" width="32px" height="32px" type = "submit"  onClick = "signIn()" >
+         <span class="login"><a href="login.html">ログイン</a></span> -->
       </div>
-    </nav>
-
-    <div class="profile">
-      <img id="profileImg" src="img/default.jpg" width="32px" height="32px">
-      <!-- <span class="login"><a href="login.html">ログイン</a></span> -->
+      <div class="toggle_btn">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div id="mask"></div>
     </div>
-    <div id="auth"></div>
-    <div class="toggle_btn">
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>
-
-    <div id="mask"></div>
-
-  </div>
+  </header>
 
   <div class="main">
+    
     <div class="timetable">
       <table class="timetable" id="TABLE1" cellspacing="0" border="1">
         <thead>

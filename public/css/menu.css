@@ -51,28 +51,28 @@ nav .inner ul li a:hover {
   }
 }
 .profile {
-  display: block;
-  position: fixed;
+  display: inline-block;
+  position: fixed; /* 画面の決まった位置に固定*/
   top: 30px;
   right: 120px;
-  width: 30px;
+  /* width: 30px; */
   height: 30px;
   transition: all .5s;
-  cursor: pointer;
   z-index: 2;
 }
-.login{
-  display: block;
+
+#profileImg {
+  cursor: pointer;
+}
+
+.logopic {
   position: fixed;
-  top: 30px;
-  right: 120px;
-  width: 80px;
-  height: 30px;
-  transition: all .5s;
-  cursor: pointer;
+  margin-left: 40px;
+  top: 18px;
+  height: 80px;
   z-index: 2;
-  
 }
+
 /*============
 .toggle_btn
 =============*/
