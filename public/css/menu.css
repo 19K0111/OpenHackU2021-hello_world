@@ -63,6 +63,8 @@ nav .inner ul li a:hover {
 
 #profileImg {
   cursor: pointer;
+  border-radius:50%;
+  object-fit:cover;
 }
 
 .logopic {
