@@ -544,7 +544,24 @@
         const tr = td.parentNode;
         const row = tr.sectionRowIndex;
         const text = td.textContent;
+
+        const daynum = { "1": "月", "2": "火", "3": "水", "4": "木", "5": "金", "6": "土", "6": "他" };
+
         console.log("td=" + td + "\t行row=" + row + "\t列column=" + column + "\t" + text);
+        console.log("Selected " + daynum[column] + (row + 1));
+
+        $('#selectsubject').text("");
+        let collection = sub.collection("subjects"); // 作成された順にデータを並べてタスクデータをデータベースから取得する
+        collection.get().then((querySnapshot) => { // 取得したデータを読み取る
+          $('sub').text('');
+          querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
+            if (doc.data()["period"] == daynum[column] + (row + 1)) {
+              $('#selectsubject').append($('<option>').html(doc.data()['name'] + ' - ' + doc.data()['teacher']).val(doc.data()['name'] + ' - ' + doc.data()['teacher']));
+            }
+            // console.log(doc.data()['name']);
+          });
+        });
+
         //クリックしたセルの色を青にする。
         if (text == "") {
           td.style.background = "#66f";
