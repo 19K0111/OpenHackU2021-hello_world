@@ -196,30 +196,7 @@
           console.error("Error removing document: ", error);
         });
     }
-    // function getPeriod(subj_id) {
-    //   let collection = db.collection("subjects"); // subjectsをデータベースから取得する
-    //   collection.get().then((querySnapshot) => { // 取得したデータを読み取る
-    //     querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
-    //       if (doc.id == subj_id) {
-    //         return doc.data()['period'];
-    //       }
-    //     });
-    //   }).catch((error) => {
-    //     console.log("Error getting documents: ", error);
-    //   });
-    // }
-    // function getSubjcetForTable(subj_id) {
-    //   let collection = db.collection("subjects"); // subjectsをデータベースから取得する
-    //   collection.get().then((querySnapshot) => { // 取得したデータを読み取る
-    //     querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
-    //       if (doc.id == subj_id) {
-    //         return doc.data()['name'] + '\n' + doc.data()['teacher'];
-    //       }
-    //     });
-    //   }).catch((error) => {
-    //     console.log("Error getting documents: ", error);
-    //   });
-    // }
+
     let user_subjects = [];
     function getAllSubjects() {
       let collection = db.collection("users"); // 作成された順にデータを並べてタスクデータをデータベースから取得する
@@ -228,7 +205,7 @@
         querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
           if (doc.id == user.uid) {
             user_subjects = doc.data()['subjects'];
-
+            console.log("user_subjects: " + user_subjects);
             for (let i = 0; i < user_subjects.length; i++) {
               let day = 1;
               let period = 1;
@@ -239,27 +216,12 @@
                 querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
                   if (doc.id == user_subjects[i] && first) {
                     pd = doc.data()['period'];
-                    console.log(pd + doc.data()['name']);
-
+                    // console.log(pd + doc.data()['name']);
                     first = false;
                   }
                 });
-                switch (String(pd).charAt(0)) {
-                  case "月": day = 1;
-                    break;
-                  case "火": day = 2;
-                    break;
-                  case "水": day = 3;
-                    break;
-                  case "木": day = 4;
-                    break;
-                  case "金": day = 5;
-                    break;
-                  case "土": day = 6;
-                    break;
-                  default: day = 6;
-                    break;
-                }
+                const daynum = { "月": 1, "火": 2, "水": 3, "木": 4, "金": 5, "土": 6, "他": 6 };
+                day = daynum[String(pd).charAt(0)];
                 period = parseInt(String(pd).charAt(1));
                 if (isNaN(period)) { period = 7; }
 
@@ -271,13 +233,13 @@
                       // console.log("day:" + day);
                       // console.log("period:" + period);
                       // console.log(doc.data()['name'] + '\n' + doc.data()['teacher']);
-
                       TABLE1.rows[period].cells[day].innerText = doc.data()['name'] + '\n' + doc.data()['teacher'];
+                      $('#tasksubject').append($('<option>').html(doc.data()['name'] + ' - ' + doc.data()['teacher']).val(doc.data()['name'] + ' - ' + doc.data()['teacher']));
                       first = false;
                     }
                   });
                 }).catch((error) => {
-                  console.log("Error getting documents: ", error);
+                  console.error("Error getting documents: ", error);
                 });
               })
 
@@ -285,7 +247,7 @@
           }
         });
       }).catch((error) => {
-        console.log("Error getting documents: ", error);
+        console.error("Error getting documents: ", error);
       });
 
     }
@@ -306,7 +268,7 @@
           }
         });
       }).catch((error) => {
-        console.log("Error getting documents: ", error);
+        console.error("Error getting documents: ", error);
       });
     }
     function updateUserSubjects() {
@@ -415,7 +377,7 @@
         エラーメッセージ： ${error.message}
         エラーコード: ${error.code}
             `
-          console.log(signinError);
+          console.error(signinError);
         });
     }
 
@@ -429,7 +391,7 @@
             location.reload();
           })
           .catch((error) => {
-            console.log(`ログアウト時にエラーが発生しました(${error})`);
+            console.error(`ログアウト時にエラーが発生しました(${error})`);
           });
       });
     }
@@ -496,7 +458,7 @@
           });
         }
       }).catch((error) => {
-        console.log("Error getting documents: ", error);
+        console.error("Error getting documents: ", error);
       });
 
     });
@@ -559,12 +521,11 @@
 
   <script>
     //table の初期化処理
-    console.log("hello");
     function initTable() {
       //table 内の td 要素をすべて取り出す。
       const list1 = [1, 2, 3, 4, 5];
       const list = document.querySelectorAll("td");
-      console.log(list1[0]);
+      // console.log(list1[0]);
 
       // (参考) list は NodeList。配列 Array に似ているけど Array ではないので注意。
 
@@ -590,7 +551,7 @@
         }
       }
       catch (e) {
-        console.log("Error:" + e);
+        console.error("Error:" + e);
       }
     }
 
@@ -766,9 +727,6 @@
                 <div class="col">
                   <!-- 科目 -->
                   <select class="form-control" id="tasksubject">
-                    </script>
-                    <option>複素関数論2</option>
-                    <option>Reading and Writing</option>
                   </select>
                 </div>
                 <div class="col">締切日</div>
@@ -797,30 +755,20 @@
 
   <script type="text/javascript">
     let sub = firebase.firestore();
-
     // 保有されている科目の取得
     function addAllSubjects() {
       let collection = sub.collection("subjects"); // 作成された順にデータを並べてタスクデータをデータベースから取得する
       collection.get().then((querySnapshot) => { // 取得したデータを読み取る
         $('sub').text('');
-
-        // 変数の初期化
-        outputAll = [];
-        num = 0;
-
         querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
-          let status = "";
-          if (doc.data()['period'] == "") {
-
-          }
           $('#selectsubject').append($('<option>').html(doc.data()['name'] + ' - ' + doc.data()['teacher']).val(doc.data()['name'] + ' - ' + doc.data()['teacher']));
           // console.log(doc.data()['name']);
-          num++;
         });
       });
     }
     addAllSubjects();
   </script>
+
   <!-- Modal(subject) -->
   <div class="modal fade" id="addSubject" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
     aria-hidden="true">
