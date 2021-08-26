@@ -132,8 +132,42 @@
         // $("#tasksubject").val(''); // inputbox に入力された値を空にする
         // $("#datepicker").val(''); // inputbox に入力された値を空にする
         console.log("Document written with ID: ", docRef.id);
+        var params = {
+          username: "Mintas",
+          avatar_url: 'https://github.com/19K0111/OpenHackU2021-hello_world/blob/main/public/img/favicon.png',
+          content: '課題が追加されました。',
+          embeds: [
+            {
+              "title": tasktitle,
+              "color": 15258703,
+              "thumbnail": {
+                "url": "",
+              },
+              "fields": [
+                {
+                  "name": "Due Date",
+                  "value": datepicker.getMonth() + 1 + '月' + datepicker.getDate() + '日 ' + ('00' + (datepicker.getHours())).slice(-2) + ':' + ('00' + (datepicker.getMinutes())).slice(-2),
+                  "inline": true
+                }
+              ]
+            }
+          ]
+        }
 
-        window.location.reload();
+        let urls = ['https://discord.com/api/webhooks/880516689463246848/NM_gRjqt2SY3wfmPa3KrDCNybll7y3KLpGieDwS9CVNC54Yt-0JD3YMO2Vc3m-Uh3Ar5'];
+        const u = 'https://discord.com/api/webhooks/880516689463246848/NM_gRjqt2SY3wfmPa3KrDCNybll7y3KLpGieDwS9CVNC54Yt-0JD3YMO2Vc3m-Uh3Ar5';
+        // for (url in urls) {
+        fetch('https://discord.com/api/webhooks/880516689463246848/NM_gRjqt2SY3wfmPa3KrDCNybll7y3KLpGieDwS9CVNC54Yt-0JD3YMO2Vc3m-Uh3Ar5', {
+          method: "POST",
+          headers: {
+            'Content-type': 'application/json'
+          },
+          body: JSON.stringify(params)
+        }).then(res => {
+          console.log(res);
+          // window.location.reload();
+        })
+        // }
       })
         .catch(function (error) { // 失敗した場合に実行される箇所
           console.error("Error adding document: ", error);
