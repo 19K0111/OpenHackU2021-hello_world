@@ -477,6 +477,27 @@
       // user 内にGoogle認証を利用したユーザー情報が格納されている
       user = user_;
       console.log("user.uid: " + user_.uid);
+      console.log("user.name: " + user_.displayName);
+
+      // Databaseにユーザ情報がなければ追加する
+      let isAdded = false;
+      let collection = db.collection("users"); // 作成された順にデータを並べてタスクデータをデータベースから取得する
+      collection.get().then((querySnapshot) => { // 取得したデータを読み取る
+        querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
+          if (doc.id == user.uid) {
+            isAdded = true;
+          }
+        });
+        if (!isAdded) {
+          db.collection("users").doc(user.uid).set({
+            id: user.uid,
+            name: user.displayName,
+            subjects: []
+          });
+        }
+      }).catch((error) => {
+        console.log("Error getting documents: ", error);
+      });
 
     });
 
@@ -609,7 +630,7 @@
   </header>
 
   <div class="main">
-    
+
     <div class="timetable">
       <table class="timetable" id="TABLE1" cellspacing="0" border="1">
         <thead>
