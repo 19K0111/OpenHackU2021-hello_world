@@ -132,6 +132,7 @@
         // $("#tasksubject").val(''); // inputbox に入力された値を空にする
         // $("#datepicker").val(''); // inputbox に入力された値を空にする
         console.log("Document written with ID: ", docRef.id);
+
         var params = {
           username: "Mintas",
           avatar_url: 'https://github.com/19K0111/OpenHackU2021-hello_world/blob/main/public/img/favicon.png',
@@ -153,25 +154,48 @@
             }
           ]
         }
+        let collection = db.collection("users");
+        collection.get().then((querySnapshot) => { // 取得したデータを読み取る
+          querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
+            let selected = $('#tasksubject').val(); // tasksubject で選択された値を取得する
+            let subject = selected.split(" - ")[0];
+            let teacher = selected.split(" - ")[1];
+            let coll = db.collection("subjects"); // subjectsをデータベースから取得する
+            coll.get().then((querySnapshot) => { // 取得したデータを読み取る
+              querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
+                if (doc.data()['name'] == subject && doc.data()['teacher'] == teacher) {
+                  if (user_subjects.includes(doc.id)) {
+                    console.log(doc.id)
+                    if (doc.data()['webhook'] !== "") {
+                      fetch(doc.data()['webhook'], {
+                        method: "POST",
+                        headers: {
+                          'Content-type': 'application/json'
+                        },
+                        body: JSON.stringify(params)
+                      }).then(res => {
+                        console.log(res);
+                        // window.location.reload();
+                      })
+                    }
+                  }
+                }
+              })
+            }).catch((error) => {
+              console.error("Error getting documents: ", error);
+            });
+
+
+          });
+        }).catch((error) => {
+          console.error("Error getting documents: ", error);
+        });
 
         let urls = ['https://discord.com/api/webhooks/880516689463246848/NM_gRjqt2SY3wfmPa3KrDCNybll7y3KLpGieDwS9CVNC54Yt-0JD3YMO2Vc3m-Uh3Ar5'];
         const u = 'https://discord.com/api/webhooks/880516689463246848/NM_gRjqt2SY3wfmPa3KrDCNybll7y3KLpGieDwS9CVNC54Yt-0JD3YMO2Vc3m-Uh3Ar5';
         // for (url in urls) {
-        // fetch(u, {
-        //   method: "POST",
-        //   headers: {
-        //     'Content-type': 'application/json'
-        //   },
-        //   body: JSON.stringify(params)
-        // }).then(res => {
-        //   console.log(res);
-        //   // window.location.reload();
-        // })
         // }
       })
-        .catch(function (error) { // 失敗した場合に実行される箇所
-          console.error("Error adding document: ", error);
-        });
     }
 
     // タスクを削除する
@@ -782,6 +806,10 @@
       <div class="addbutton" style="position: absolute;">
         <button type="button" class="btn btn-primary" id="addBtn" data-toggle="modal" data-target="#addTask"
           onclick="showNewModal(this)">新規作成</button>
+      </div>
+      <div class="addwebhook" style="position: absolute;">
+        <button type="button" class="btn btn-primary" id="addWebhookBtn" data-toggle="modal" data-target="#addWebhook"
+          onclick="showNewModal(this)">Webhook登録</button>
       </div>
     </div>
   </div>
