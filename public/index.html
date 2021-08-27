@@ -375,6 +375,25 @@
       });
     }
 
+    function addWebhook() {
+      let collection = db.collection("users");
+      collection.get().then((querySnapshot) => { // 取得したデータを読み取る
+        querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
+          if (doc.id === user.uid) {
+            db.collection("users").doc(user.uid).update({
+              webhook: ""// ここにwebhookの変数
+            }).then(() => {
+              console.log("Document successfully updated!");
+              // getAllSubjects();
+              window.location.reload();
+            })
+          }
+        });
+      }).catch((error) => {
+        console.error("Error getting documents: ", error);
+      });
+    }
+
     // 新規タスクのためのモーダルを表示する
     function showNewModal(elm) {
       // $('#docId').val(elm.getAttribute('value')); // 選択したタスクデータのID を <input type="hidden" id="docId"> に設定
