@@ -320,7 +320,21 @@
     }
 
     function delSubjectFromUser() {
-
+      let selected = $('#selectsubject').val(); // selectsubject で選択された値を取得する
+      let subject = selected.split(" - ")[0];
+      let teacher = selected.split(" - ")[1];
+      let collection = db.collection("subjects"); // subjectsをデータベースから取得する
+      collection.get().then((querySnapshot) => { // 取得したデータを読み取る
+        querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
+          if (doc.data()['name'] == subject && doc.data()['teacher'] == teacher) {
+            user_subjects = user_subjects.filter(a => a !== doc.id);
+            console.log("delete");
+            updateUserSubjects();
+          }
+        });
+      }).catch((error) => {
+        console.error("Error getting documents: ", error);
+      });
     }
 
     // 新規タスクのためのモーダルを表示する
