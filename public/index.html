@@ -293,9 +293,23 @@
       let teacher = selected.split(" - ")[1];
 
       let collection = db.collection("subjects"); // subjectsをデータベースから取得する
+
+      // 選択した時限に既に授業が入っているとき -> 旧授業をuser_subjectから消す
+      let index = 0;
+      user_subjects.forEach(e => {
+        collection.doc(e).get().then((dd) => {
+          if (dd.data()["period"] == $("#docId2").val()) {
+            console.log("重複した授業：" + $("#docId2").val() + dd.data()["name"]);
+            user_subjects.splice(index, 1);
+          } else {
+            index++;
+          }
+        });
+      });
+
       collection.get().then((querySnapshot) => { // 取得したデータを読み取る
         querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
-          if (doc.data()['name'] == subject && doc.data()['teacher'] == teacher) {
+          if (doc.data()['name'] == subject && doc.data()['teacher'] == teacher && doc.data()["period"] == $("#docId2").val()) {
             user_subjects.push(doc.id);
             console.log("pushed");
             updateUserSubjects();
@@ -602,9 +616,14 @@
         let collection = sub.collection("subjects"); // 作成された順にデータを並べてタスクデータをデータベースから取得する
         collection.get().then((querySnapshot) => { // 取得したデータを読み取る
           $('sub').text('');
+          $("#docId2").val(daynum[column] + (row + 1));
           querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
             if (doc.data()["period"] == daynum[column] + (row + 1)) {
-              $('#selectsubject').append($('<option>').html(doc.data()['name'] + ' - ' + doc.data()['teacher']).val(doc.data()['name'] + ' - ' + doc.data()['teacher']));
+              if (td.innerText.replace("\n", " - ") == doc.data()['name'] + ' - ' + doc.data()['teacher']) {
+                $('#selectsubject').append($('<option>').html(doc.data()['name'] + ' - ' + doc.data()['teacher']).val(doc.data()['name'] + ' - ' + doc.data()['teacher']).prop("selected", true));
+              } else {
+                $('#selectsubject').append($('<option>').html(doc.data()['name'] + ' - ' + doc.data()['teacher']).val(doc.data()['name'] + ' - ' + doc.data()['teacher']));
+              }
             }
             // console.log(doc.data()['name']);
           });
@@ -676,66 +695,66 @@
             <!-- 2行目 -->
             <th scope="row" class="period">1</th>
             <!-- <td><a href="./lectures/1.html" target="_blank" title="複素関数論2">複素関数論2</a></td> 月曜１限 -->
-            <td data-toggle="modal" data-target="#addSubject" data-whatever="mon1"></td>
-            <td data-toggle="modal" data-target="#addSubject" data-whatever="tue1"></td>
-            <td data-toggle="modal" data-target="#addSubject" data-whatever="wed1"></td>
-            <td data-toggle="modal" data-target="#addSubject" data-whatever="thu1"></td>
-            <td data-toggle="modal" data-target="#addSubject" data-whatever="fri1"></td>
-            <td data-toggle="modal" data-target="#addSubject" data-whatever="sat1"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="mon1" id="月1"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="tue1" id="火1"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="wed1" id="水1"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="thu1" id="木1"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="fri1" id="金1"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="sat1" id="土1"></td>
           </tr>
           <tr>
             <th scope="row" class="period">2</th>
-            <td data-toggle="modal" data-target="#addSubject" data-whatever="mon2"></td>
-            <td data-toggle="modal" data-target="#addSubject" data-whatever="tue2"></td>
-            <td data-toggle="modal" data-target="#addSubject" data-whatever="wed2"></td>
-            <td data-toggle="modal" data-target="#addSubject" data-whatever="thu2"></td>
-            <td data-toggle="modal" data-target="#addSubject" data-whatever="fri2"></td>
-            <td data-toggle="modal" data-target="#addSubject" data-whatever="sat2"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="mon2" id="月2"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="tue2" id="火2"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="wed2" id="水2"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="thu2" id="木2"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="fri2" id="金2"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="sat2" id="土2"></td>
           </tr>
           <tr>
             <th scope="row" class="period">3</th>
-            <td data-toggle="modal" data-target="#addSubject" data-whatever="mon3"></td>
-            <td data-toggle="modal" data-target="#addSubject" data-whatever="tue3"></td>
-            <td data-toggle="modal" data-target="#addSubject" data-whatever="wed3"></td>
-            <td data-toggle="modal" data-target="#addSubject" data-whatever="thu3"></td>
-            <td data-toggle="modal" data-target="#addSubject" data-whatever="fri3"></td>
-            <td data-toggle="modal" data-target="#addSubject" data-whatever="sat3"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="mon3" id="月3"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="tue3" id="火3"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="wed3" id="水3"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="thu3" id="木3"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="fri3" id="金3"></td>
+            <td data-toggle="modal" data-target="#addSubject" data-whatever="sat3" id="土3"></td>
           </tr>
           <tr>
             <th scope="row" class="period">4</th>
-            <td data-toggle="modal" data-target="#addSubject"></td>
-            <td data-toggle="modal" data-target="#addSubject"></td>
-            <td data-toggle="modal" data-target="#addSubject"></td>
-            <td data-toggle="modal" data-target="#addSubject"></td>
-            <td data-toggle="modal" data-target="#addSubject"></td>
-            <td data-toggle="modal" data-target="#addSubject"></td>
+            <td data-toggle="modal" data-target="#addSubject" id="月4"></td>
+            <td data-toggle="modal" data-target="#addSubject" id="火4"></td>
+            <td data-toggle="modal" data-target="#addSubject" id="水4"></td>
+            <td data-toggle="modal" data-target="#addSubject" id="木4"></td>
+            <td data-toggle="modal" data-target="#addSubject" id="金4"></td>
+            <td data-toggle="modal" data-target="#addSubject" id="土4"></td>
           </tr>
           <tr>
             <th scope="row" class="period">5</th>
-            <td data-toggle="modal" data-target="#addSubject"></td>
-            <td data-toggle="modal" data-target="#addSubject"></td>
-            <td data-toggle="modal" data-target="#addSubject"></td>
-            <td data-toggle="modal" data-target="#addSubject"></td>
-            <td data-toggle="modal" data-target="#addSubject"></td>
-            <td data-toggle="modal" data-target="#addSubject"></td>
+            <td data-toggle="modal" data-target="#addSubject" id="月5"></td>
+            <td data-toggle="modal" data-target="#addSubject" id="火5"></td>
+            <td data-toggle="modal" data-target="#addSubject" id="水5"></td>
+            <td data-toggle="modal" data-target="#addSubject" id="木5"></td>
+            <td data-toggle="modal" data-target="#addSubject" id="金5"></td>
+            <td data-toggle="modal" data-target="#addSubject" id="土5"></td>
           </tr>
           <tr>
             <th scope="row" class="period">6</th>
-            <td data-toggle="modal" data-target="#addSubject"></td>
-            <td data-toggle="modal" data-target="#addSubject"></td>
-            <td data-toggle="modal" data-target="#addSubject"></td>
-            <td data-toggle="modal" data-target="#addSubject"></td>
-            <td data-toggle="modal" data-target="#addSubject"></td>
-            <td data-toggle="modal" data-target="#addSubject"></td>
+            <td data-toggle="modal" data-target="#addSubject" id="月6"></td>
+            <td data-toggle="modal" data-target="#addSubject" id="火6"></td>
+            <td data-toggle="modal" data-target="#addSubject" id="水6"></td>
+            <td data-toggle="modal" data-target="#addSubject" id="木6"></td>
+            <td data-toggle="modal" data-target="#addSubject" id="金6"></td>
+            <td data-toggle="modal" data-target="#addSubject" id="土6"></td>
           </tr>
           <tr>
             <th scope="row" class="period">7</th>
-            <td data-toggle="modal" data-target="#addSubject"></td>
-            <td data-toggle="modal" data-target="#addSubject"></td>
-            <td data-toggle="modal" data-target="#addSubject"></td>
-            <td data-toggle="modal" data-target="#addSubject"></td>
-            <td data-toggle="modal" data-target="#addSubject"></td>
-            <td data-toggle="modal" data-target="#addSubject"></td>
+            <td data-toggle="modal" data-target="#addSubject" id="月7"></td>
+            <td data-toggle="modal" data-target="#addSubject" id="火7"></td>
+            <td data-toggle="modal" data-target="#addSubject" id="水7"></td>
+            <td data-toggle="modal" data-target="#addSubject" id="木7"></td>
+            <td data-toggle="modal" data-target="#addSubject" id="金7"></td>
+            <td data-toggle="modal" data-target="#addSubject" id="土7"></td>
           </tr>
         </tbody>
       </table>
@@ -846,7 +865,7 @@
           </button>
         </div>
         <div class="modal-body">
-          <input type="hidden" id="docId"> <!-- 選択したタスクIDを管理する -->
+          <input type="hidden" id="docId2"> <!-- 選択した時限を管理する -->
           <form>
             <div class="container">
               <div class="row row-cols-1" id="editTask">
