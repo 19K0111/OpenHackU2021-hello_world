@@ -68,11 +68,19 @@ nav .inner ul li a:hover {
 }
 
 .logopic {
-  position: fixed;
+  /* position: fixed; */
   margin-left: 40px;
   top: 18px;
   height: 80px;
   z-index: 2;
+}
+
+header{
+  position: fixed;
+  display: flex;
+  background-color: #ffffff;
+  top: 0px;
+  width: 100%;
 }
 
 /*============
