@@ -165,9 +165,8 @@
               querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
                 if (doc.data()['name'] == subject && doc.data()['teacher'] == teacher) {
                   if (user_subjects.includes(doc.id)) {
-                    console.log(doc.id)
-                    if (doc.data()['webhook'] !== "") {
-                      fetch(doc.data()['webhook'], {
+                    if (user_webhook !== "") {
+                      fetch(user_webhook, {
                         method: "POST",
                         headers: {
                           'Content-type': 'application/json'
@@ -256,6 +255,7 @@
     }
 
     let user_subjects = [];
+    let user_webhook = "";
     function getAllSubjects() {
       let collection = db.collection("users"); // 作成された順にデータを並べてタスクデータをデータベースから取得する
       collection.get().then((querySnapshot) => { // 取得したデータを読み取る
@@ -263,7 +263,11 @@
         querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
           if (doc.id == user.uid) {
             user_subjects = doc.data()['subjects'];
+            user_webhook = doc.data()['webhook'];
+
             console.log("user_subjects: " + user_subjects);
+            console.log("user_webhook: " + user_webhook);
+
             for (let i = 0; i < user_subjects.length; i++) {
               let day = 1;
               let period = 1;
@@ -381,7 +385,7 @@
         querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
           if (doc.id === user.uid) {
             db.collection("users").doc(user.uid).update({
-              webhook: ""// ここにwebhookの変数
+              webhook: $("#webhook_url").val()// ここにwebhookの変数
             }).then(() => {
               console.log("Document successfully updated!");
               // getAllSubjects();
@@ -674,7 +678,7 @@
 
         //クリックしたセルの色を青にする。
         if (text == "") {
-          td.style.background = "#66f";
+          // td.style.background = "#66f";
         }
       }
       catch (e) {
@@ -938,6 +942,40 @@
           <button type="button" class="btn btn-secondary" id="cancelBtn" data-dismiss="modal">キャンセル</button>
           <button type="button" class="btn btn-danger" id="deleteBtn" onclick="delSubjectFromUser()">削除</button>
           <button type="button" class="btn btn-primary" id="OKBtn" onclick="addSubjectToUser()">決定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal(webhook) -->
+  <div class="modal fade" id="addWebhook" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitleLabel"> Webhookを登録</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="docId3">
+          <form>
+            <div class="container">
+              <div class="row row-cols-1" id="editTask">
+                <div class="col">Webhook URL</div>
+                <div class="col">
+                  <!-- タイトル -->
+                  <input type="text" class="form-control" id="webhook_url" />
+                </div>
+                <div class="col">
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancelBtn" data-dismiss="modal">キャンセル</button>
+          <button type="button" class="btn btn-primary" id="OKBtn" onclick="addWebhook()">決定</button>
         </div>
       </div>
     </div>
