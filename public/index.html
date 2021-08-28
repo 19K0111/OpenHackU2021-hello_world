@@ -75,6 +75,29 @@
 
         querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
           let status = "";
+          let sub = doc.data()['subject'];
+          let params = {
+            username: "Mintas",
+            // avatar_url: 'https://github.com/19K0111/OpenHackU2021-hello_world/blob/main/public/img/favicon.png',
+            content: '課題の締め切りが間近です。',
+            embeds: [
+              {
+                "title": doc.data()['title'],
+                "color": 15258703,
+                "thumbnail": {
+                  "url": "",
+                },
+                "fields": [
+                  {
+                    "name": "Due Date",
+                    "value": doc.data()['duedateMM'] + 1 + '月' + doc.data()['duedateDD'] + '日 ' + ('00' + (doc.data()['duedateHH'])).slice(-2) + ':' + ('00' + (doc.data()['duedateMIN'])).slice(-2),
+                    "inline": true
+                  }
+                ]
+              }
+            ]
+          }
+          console.log(params);
           if (doc.data()['done']) {
             status = "checked"
           } // タスクが完了の状態になっているかの判定
@@ -90,7 +113,7 @@
               <div class="detail"> \
                 <span class="duedate">'+ doc.data()['duedateYY'] + '年' + doc.data()['duedateMM'] + '月' + doc.data()['duedateDD'] + '日 ' + doc.data()['duedateHH'] + ':' + doc.data()['duedateMIN'] + '</span> \
                 <span class="taskname">'+ doc.data()['title'] + '</span> \
-                <span class="lecturename">('+ doc.data()['subject'] + ')</span> \
+                <span class="lecturename">('+ sub + ')</span> \
                   [<a value="' + doc.id + '" data-toggle="modal" data-target="#addTask" onclick="showEditModal(this)"> <span class="fontBlue">編集</span> </a>] \
                   [<a value="' + doc.id + '" data-toggle="modal" data-target="#addTask" onclick="showDeleteModal(this)"> <span class="fontRed">削除</span> </a>] \
                   - Added by ' + doc.data()['create_by_name'] + '\
@@ -101,6 +124,50 @@
         </div> \
       </div>');
           num++;
+          let now_date = new Date();
+          let task_due = new Date(doc.data()['duedateYY'], doc.data()['duedateMM'], doc.data()['duedateDD'], doc.data()['duedateHH'], doc.data()['duedateMIN'], 0);
+          let diff_time = task_due - now_date;
+
+          if (diff_time / 86400000 > 32) {
+
+            let col = db.collection("users");
+            col.get().then((querySnapshot) => { // 取得したデータを読み取る
+              querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
+                let selected = sub; // tasksubject で選択された値を取得する
+                let subject = selected.split(" - ")[0];
+                let teacher = selected.split(" - ")[1];
+                let coll = db.collection("subjects"); // subjectsをデータベースから取得する
+                coll.get().then((querySnapshot) => { // 取得したデータを読み取る
+                  querySnapshot.forEach((doc) => { // 取得したデータそれぞれ1つづつのデータに対して
+                    if (doc.data()['name'] == subject && doc.data()['teacher'] == teacher) {
+                      if (user_subjects.includes(doc.id)) {
+                        if (user_webhook !== "") {
+                          console.log(params);
+                          fetch(user_webhook, {
+                            method: "POST",
+                            headers: {
+                              'Content-type': 'application/json'
+                            },
+                            body: JSON.stringify(params)
+                          }).then(res => {
+                            console.log(res);
+                            // window.location.reload();
+                          })
+                        }
+                      }
+                    }
+                  })
+                }).catch((error) => {
+                  console.error("Error getting documents: ", error);
+                });
+
+
+              });
+            }).catch((error) => {
+              console.error("Error getting documents: ", error);
+            });
+          }
+
         });
       });
     }
