@@ -128,7 +128,7 @@
           let task_due = new Date(doc.data()['duedateYY'], doc.data()['duedateMM'], doc.data()['duedateDD'], doc.data()['duedateHH'], doc.data()['duedateMIN'], 0);
           let diff_time = task_due - now_date;
 
-          if (diff_time / 86400000 > 32) {
+          if (32.3 > diff_time / 86400000 > 32) {
 
             let col = db.collection("users");
             col.get().then((querySnapshot) => { // 取得したデータを読み取る
